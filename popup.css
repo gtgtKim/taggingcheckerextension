@@ -1,0 +1,40 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 10px;
+  width: 300px; /* 팝업 너비 조정 */
+  height: 400px; /* 팝업 높이 조정 */
+  overflow-y: auto; /* 내용이 길어지면 스크롤 */
+}
+#input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.input-group {
+  display: flex;
+  align-items: center;
+}
+.input-label {
+  width: 80px; /* 레이블의 고정 너비 */
+  font-size: 14px;
+  margin-right: 10px;
+  text-align: right; /* 레이블 텍스트 정렬 */
+}
+.input-field {
+  width: 100%;
+  padding: 5px;
+  font-size: 14px;
+  box-sizing: border-box; /* 패딩과 경계를 포함하여 width 계산 */
+}
+/* 버튼 컨테이너에 flexbox 적용 */
+.button-container {
+  display: flex;
+  align-items: center; /* 버튼과 체크박스를 수직 가운데 정렬 */
+  gap: 10px; /* 버튼과 체크박스 사이 간격 */
+}
+#toggle-button {
+  flex: 1; /* 버튼이 균등하게 공간을 차지하도록 */
+  padding: 10px;
+  font-size: 16px;
+  box-sizing: border-box; /* 패딩과 경계를 포함하여 width 계산 */
+}

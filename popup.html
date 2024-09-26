@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Script Runner</title>
+    <style src="popup.css"></style>
+  </head>
+  <body>
+    <div id="input-container">
+      <div class="input-group">
+        <label class="input-label" for="input1">Input 1</label>
+        <input type="text" class="input-field" id="input1" />
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="input2">Input 2</label>
+        <input type="text" class="input-field" id="input2" />
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="input3">Input 3</label>
+        <input type="text" class="input-field" id="input3" />
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="input4">Input 4</label>
+        <input type="text" class="input-field" id="input4" />
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="input5">Input 5</label>
+        <input type="text" class="input-field" id="input5" />
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="overflow-node">Overflow (default:3)</label>
+        <input type="text" id="overflow-node" placeholder="5" value="3" />
+      </div>
+
+      <!-- 버튼을 감싸는 컨테이너 -->
+      <div class="button-container">
+        <button id="toggle-button">Turn On</button>
+        <label for="toggle-checkbox">single selector</label>
+        <input type="checkbox" id="toggle-checkbox" />
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
