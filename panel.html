@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Copy History Panel</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 4px 8px; /* 패딩을 줄여 행 높이 줄이기 */
+        text-align: left;
+        font-size: 14px; /* 글꼴 크기를 줄여 행 높이 줄이기 */
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      /* 숫자 변경 시 효과 */
+      .highlight {
+        background-color: rgba(255, 0, 0, 0.2); /* 약간 투명한 빨간색 */
+        transition: background-color 0.2s ease;
+      }
+      /* 행 추가 시 효과 */
+      .new-row {
+        background-color: rgba(255, 255, 0, 0.2); /* 약간 투명한 노란색 */
+        transition: background-color 0.2s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topnav">
+      <button id="removeAllTable">All Clear</button>
+    </div>
+    <div id="copy-list-container">
+      <!-- 테이블이 여기에 추가됩니다 -->
+    </div>
+    <script src="panel.js"></script>
+  </body>
+</html>

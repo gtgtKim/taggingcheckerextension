@@ -42,6 +42,7 @@ function taggingMarker(selector) {
     var tooltiptext = document.createElement("div");
     tooltiptext.className = "gatooltiptext gatooltip" + (elementTop > 200 ? "bottom" : "top");
     tooltiptext.innerHTML = attrValues.join("<br>");
+    tooltiptext.setAttribute("gatooltext", JSON.stringify(attrValues));
 
     el.classList.add("gatooltip");
     el.innerHTML = marker.outerHTML + el.innerHTML + tooltiptext.outerHTML;
@@ -49,9 +50,9 @@ function taggingMarker(selector) {
     var count = 0; // 부모 요소 추가 개수 카운트
 
     while (el.parentElement && count < Number(overflowNode)) {
-      el = el.parentElement;
       el.classList.add("gaparent"); // 부모 요소에 클래스 추가
       count++; // 카운트 증가
+      el = el.parentElement;
     }
   });
 }
@@ -66,24 +67,32 @@ function copyTooltipText(event) {
     // 메시지 요소를 body에 추가
     document.body.appendChild(messageDiv);
 
-    // 메시지 요소를 2초 후에 제거
+    // 메시지 요소를 0.5초 후에 제거
     setTimeout(() => {
       messageDiv.remove();
     }, 500);
   }
+
   // Ctrl+C 키 조합이 눌렸을 때 처리
   if (event.ctrlKey && event.key === "c") {
     var hoveredTooltipText = document.querySelector(".gatooltip:hover .gatooltiptext");
     if (hoveredTooltipText) {
+      var copiedText = hoveredTooltipText.innerText.trim();
+      var copiedTextToDevtools = hoveredTooltipText.getAttribute("gatooltext");
       // 클립보드에 텍스트 복사
       navigator.clipboard
-        .writeText(hoveredTooltipText.innerText)
+        .writeText(copiedText)
         .then(() => {
-          // 복사 완료 알림 (필요하면 표시)
-          showCopyMessage(
-            `copy complete:
-            ${hoveredTooltipText.innerText}`
-          );
+          // 복사 완료 알림
+          showCopyMessage(`Copy complete:\n${copiedText}`);
+
+          // 백그라운드 스크립트로 메시지 전달
+          chrome.runtime.sendMessage({
+            action: "copyMade",
+            copyText: copiedTextToDevtools,
+            attrNames: attrNames,
+          });
+          console.log("Copy complete", copiedTextToDevtools);
         })
         .catch((err) => {
           console.error("텍스트 복사 실패:", err);

@@ -3,7 +3,8 @@
   "name": "Script Runner Extension",
   "version": "1.1",
   "description": "활성 탭에서 a.js와 b.js를 실행하고 a.css를 적용하는 크롬 확장 프로그램입니다.",
-  "permissions": ["scripting", "activeTab", "storage"],
+  "permissions": ["scripting", "activeTab", "storage", "tabs", "alarms"],
+  "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html"
   },
@@ -22,5 +23,6 @@
       "resources": ["a.js", "b.js", "a.css"],
       "matches": ["<all_urls>"]
     }
-  ]
+  ],
+  "devtools_page": "devtools.html"
 }
