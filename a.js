@@ -10,7 +10,7 @@ chrome.storage.local.get("singleSelector", (data) => {
 });
 chrome.storage.local.get("customAttri", (data) => {
   attrNames = data.customAttri || [];
-  selector = singleSelector ? "[" + attrNames[0] + "]" : attrNames.map((name) => "[" + name + "]").join(",");
+  selector = !singleSelector ? attrNames.map((name) => "[" + name + "]").join(",") : attrNames.map((name) => "[" + name + "]").join("");
   console.log("selector", selector);
   console.log("singleSelector", singleSelector);
 

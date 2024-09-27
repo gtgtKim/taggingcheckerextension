@@ -51,6 +51,11 @@ chrome.runtime.onConnect.addListener(function (port) {
   }
 });
 chrome.alarms.create("keepAlive", { periodInMinutes: 1 });
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "keepAlive") {
+    console.log("Keep-alive alarm triggered.");
+  }
+});
 // 탭 업데이트 감지 (페이지 이동 또는 새로고침)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (isOn && changeInfo.status === "complete") {
