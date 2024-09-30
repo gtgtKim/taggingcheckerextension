@@ -8,7 +8,7 @@
   overflow: visible !important;
 }
 
-.gatooltip:hover .gatooltiptext {
+.gatooltip:hover > .gatooltiptext {
   visibility: visible !important;
   opacity: 1 !important;
 }

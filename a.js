@@ -2,6 +2,8 @@ var attrNames = [];
 var overflowNode;
 var singleSelector;
 var selector;
+var persistTaggingMarker;
+var persistTaggingMarkerFlag;
 chrome.storage.local.get("overflowNode", (data) => {
   overflowNode = data.overflowNode;
 });
@@ -16,6 +18,11 @@ chrome.storage.local.get("customAttri", (data) => {
 
   if (attrNames.length > 0) {
     taggingMarker(selector);
+    persistTaggingMarkerFlag = true;
+
+    persistTaggingMarker = setInterval(() => {
+      if (persistTaggingMarkerFlag) taggingMarker(selector);
+    }, 200);
   }
 });
 
@@ -29,30 +36,32 @@ function qsAll(selector) {
 // 태깅되었으면 표시
 function taggingMarker(selector) {
   qsAll(selector).forEach(function (el) {
-    var attrValues = attrNames.map(function (name) {
-      return el.getAttribute(name);
-    });
+    if (!el.classList.contains("gatooltip")) {
+      var attrValues = attrNames.map(function (name) {
+        return el.getAttribute(name);
+      });
 
-    var elementTop = el.getBoundingClientRect().top + window.scrollY;
+      var elementTop = el.getBoundingClientRect().top + window.scrollY;
 
-    var marker = document.createElement("div");
-    marker.className = "gatagging-marker";
-    marker.innerHTML = "&#9989;";
+      var marker = document.createElement("div");
+      marker.className = "gatagging-marker";
+      marker.innerHTML = "&#9989;";
 
-    var tooltiptext = document.createElement("div");
-    tooltiptext.className = "gatooltiptext gatooltip" + (elementTop > 200 ? "bottom" : "top");
-    tooltiptext.innerHTML = attrValues.join("<br>");
-    tooltiptext.setAttribute("gatooltext", JSON.stringify(attrValues));
+      var tooltiptext = document.createElement("div");
+      tooltiptext.className = "gatooltiptext gatooltip" + (elementTop > 200 ? "bottom" : "top");
+      tooltiptext.innerHTML = attrValues.join("<br>");
+      tooltiptext.setAttribute("gatooltext", JSON.stringify(attrValues));
 
-    el.classList.add("gatooltip");
-    el.innerHTML = marker.outerHTML + el.innerHTML + tooltiptext.outerHTML;
+      el.classList.add("gatooltip");
+      el.innerHTML = marker.outerHTML + el.innerHTML + tooltiptext.outerHTML;
 
-    var count = 0; // 부모 요소 추가 개수 카운트
+      var count = 0; // 부모 요소 추가 개수 카운트
 
-    while (el.parentElement && count < Number(overflowNode)) {
-      el.classList.add("gaparent"); // 부모 요소에 클래스 추가
-      count++; // 카운트 증가
-      el = el.parentElement;
+      while (el.parentElement && count < Number(overflowNode)) {
+        el.classList.add("gaparent"); // 부모 요소에 클래스 추가
+        count++; // 카운트 증가
+        el = el.parentElement;
+      }
     }
   });
 }
@@ -75,7 +84,7 @@ function copyTooltipText(event) {
 
   // Ctrl+C 키 조합이 눌렸을 때 처리
   if (event.ctrlKey && event.key === "c") {
-    var hoveredTooltipText = document.querySelector(".gatooltip:hover .gatooltiptext");
+    var hoveredTooltipText = document.querySelector(".gatooltip:hover > .gatooltiptext");
     if (hoveredTooltipText) {
       var copiedText = hoveredTooltipText.innerText.trim();
       var copiedTextToDevtools = hoveredTooltipText.getAttribute("gatooltext");

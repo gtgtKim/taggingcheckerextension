@@ -14,7 +14,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     customAttri = message.customAttri;
     overflowNode = message.overflowNode;
     singleSelector = message.singleSelector;
-    console.log("singleSelector", singleSelector);
+    console.log("receive selector", singleSelector);
     chrome.storage.local.set({ customAttri: customAttri, overflowNode: overflowNode, singleSelector: singleSelector });
 
     if (isOn) {
@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         copyText: message.copyText,
         attrNames: message.attrNames,
       });
-      console.log("message.text", message.copyText);
+      console.log("send to devtools", message.copyText);
     });
   }
 });
@@ -50,12 +50,12 @@ chrome.runtime.onConnect.addListener(function (port) {
     });
   }
 });
-chrome.alarms.create("keepAlive", { periodInMinutes: 1 });
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "keepAlive") {
-    console.log("Keep-alive alarm triggered.");
-  }
-});
+
+// 서비스워커 수명 연장
+const keepAlive = () => setInterval(chrome.runtime.getPlatformInfo, 20e3);
+chrome.runtime.onStartup.addListener(keepAlive);
+keepAlive();
+
 // 탭 업데이트 감지 (페이지 이동 또는 새로고침)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (isOn && changeInfo.status === "complete") {
