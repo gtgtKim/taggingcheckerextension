@@ -1,6 +1,8 @@
+import { copyTextArray } from "./background_1.js";
 let isOn = false;
 let customAttri = [];
 let singleSelector = false;
+let overflowNode;
 let devtoolsPorts = []; // devtoolsPorts를 전역 스코프에 선언
 // 초기 상태 로드
 chrome.storage.local.get("isOn", (data) => {
@@ -28,15 +30,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.storage.local.set({ customAttri: customAttri, overflowNode: overflowNode, singleSelector: singleSelector });
       injectScripts(sender.tab.id, ["b.js", "a.js"], ["a.css"]);
     }, 500);
-  } else if (message.action === "copyMade") {
+  } else if (message.action === "copyMade" || message.action === "panelOpened") {
     // DevTools 패널로 메시지 전달
     devtoolsPorts.forEach((port) => {
-      port.postMessage({
-        action: "copyMade",
-        copyText: message.copyText,
-        attrNames: message.attrNames,
-      });
-      console.log("send to devtools", message.copyText);
+      copyTextArray(port, message);
+    });
+  } else if (message.action === "panelClosed") {
+    devtoolsPorts.forEach((port) => {
+      port.postMessage({ action: message.action });
     });
   }
 });
@@ -98,7 +99,7 @@ function injectScripts(tabId, scriptFiles = [], cssFiles = [], cssRemoveFiles = 
 
 // 활성 탭에 스크립트 및 CSS 주입 함수
 function injectScriptsToActiveTab(scriptFiles = [], cssFiles = [], cssRemoveFiles = []) {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  chrome.tabs.query({ active: true }, (tabs) => {
     if (tabs.length > 0) {
       const tab = tabs[0];
 

@@ -1,5 +1,6 @@
 var port = chrome.runtime.connect({ name: "devtools" });
 
+var isPanelOpen = false;
 var attrNames = [];
 var copyCounts = [];
 var lastCopiedText = ""; // 마지막으로 받은 메시지 저장
@@ -13,32 +14,21 @@ function safeBtoa(input) {
 }
 
 port.onMessage.addListener(function (msg) {
-  if (msg.action === "copyMade") {
-    attrNames = msg.attrNames;
-    var copiedText = msg.copyText;
-    console.log("copiedText", copiedText);
-
-    // 마지막으로 받은 메시지와 비교
-    if (copiedText === lastCopiedText) {
-      updateLastCopyCount();
-    } else {
-      lastCopiedText = copiedText;
-      addNewCopyItem(copiedText);
-    }
+  if (msg.action === "copyMade" || msg.action === "panelOpened") {
+    getData(() => {
+      if (msg.action === "panelOpened") {
+        isPanelOpen = true;
+        updateTable(msg.action);
+      } else if (copyCounts[copyCounts.length - 1].count > 1) {
+        updateTable(false);
+      } else {
+        updateTable(true);
+      }
+    });
+  } else if (msg.action === "panelClosed") {
+    isPanelOpen = false;
   }
 });
-
-function updateLastCopyCount() {
-  if (copyCounts.length > 0) {
-    copyCounts[copyCounts.length - 1].count++;
-    updateTable(false);
-  }
-}
-
-function addNewCopyItem(copiedText) {
-  copyCounts.push({ text: copiedText, count: 1 });
-  updateTable(true);
-}
 
 function updateTable(isNewRow) {
   var copyList = document.getElementById("copy-list");
@@ -55,7 +45,7 @@ function updateTable(isNewRow) {
   // 테이블 내용 생성
   copyCounts.forEach((item, index) => {
     var row = document.createElement("tr");
-    var copy = JSON.parse(item.text);
+    var copy = item.text ? JSON.parse(item.text) : [];
 
     copy.forEach((e, i) => {
       var cell = document.createElement("td");
@@ -65,9 +55,18 @@ function updateTable(isNewRow) {
 
     var countCell = document.createElement("td");
     countCell.textContent = item.count;
-
+    if (isNewRow === "panelOpened") {
+      chrome.storage.local.get(["currentTableLength"], function (data) {
+        if (data.currentTableLength - 1 < index) {
+          row.classList.add("new-row");
+          setTimeout(() => {
+            row.classList.remove("new-row");
+          }, 1000);
+        }
+      });
+    }
     // 숫자 변경 시 효과
-    if (index === copyCounts.length - 1 && !isNewRow) {
+    else if (index === copyCounts.length - 1 && !isNewRow) {
       countCell.classList.add("highlight");
       setTimeout(() => {
         countCell.classList.remove("highlight");
@@ -75,7 +74,7 @@ function updateTable(isNewRow) {
     }
 
     // 행 추가 시 효과
-    if (index === copyCounts.length - 1 && isNewRow) {
+    else if (index === copyCounts.length - 1 && isNewRow) {
       row.classList.add("new-row");
       setTimeout(() => {
         row.classList.remove("new-row");
@@ -91,6 +90,7 @@ function updateTable(isNewRow) {
     var lastRow = copyList.lastElementChild;
     lastRow.scrollIntoView({ behavior: "smooth", block: "end" });
   }
+  if (isPanelOpen) chrome.storage.local.set({ currentTableLength: copyCounts.length });
 }
 
 // HTML이 처음 로드될 때 테이블 요소를 생성
@@ -111,9 +111,19 @@ function clearTableRows() {
   var copyList = document.getElementById("copy-list");
   var rows = copyList.getElementsByTagName("tr");
 
-  while (rows.length > 1) {
-    copyList.deleteRow(1);
+  while (rows.length > 0) {
+    copyList.deleteRow(0);
   }
   copyCounts = [];
   lastCopiedText = "";
+  chrome.storage.local.set({ copyCounts: [], lastCopiedText: "", currentTableLength: copyCounts.length }, function () {});
+}
+
+function getData(callback) {
+  chrome.storage.local.get(["copyCounts", "lastCopiedText", "attrNames"], function (data) {
+    copyCounts = data.copyCounts || [];
+    lastCopiedText = data.lastCopiedText || "";
+    attrNames = data.attrNames;
+    callback();
+  });
 }
